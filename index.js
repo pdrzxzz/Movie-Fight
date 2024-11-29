@@ -34,18 +34,25 @@ const onInput = async event => {
     resultsWrapper.innerHTML = ''; //clear all past results
 
     displayDropdown();
+    if (!movies.length && event.target.value) { //if we dont find a movie and there's an input.
+      resultsWrapper.append('No results found!');
+      return;
+    };
+
     for (let movie of movies) { //for each movie found
       if (movie.Poster != 'N/A') { //if movie has an poster image
         const option = document.createElement('a');
         option.classList.add('dropdown-item'); //Bulma styling
         option.innerHTML = `<img src="${movie.Poster}" /> ${movie.Title}`;
+        option.addEventListener('click', () => {
+          hideDropdown();
+          input.value = movie.Title;
+        })
         resultsWrapper.appendChild(option);
       }
     };
 
-    if (!movies.length && event.target.value) { //if we dont find a movie and there's an input.
-      resultsWrapper.append('No results found!');
-    };
+
   }
   else { //if there's no input (the user erases all)
     hideDropdown();
@@ -53,18 +60,29 @@ const onInput = async event => {
 }
 
 const input = document.querySelector('input');
-input.addEventListener('input', debounce(onInput, 500))
+input.addEventListener('input', debounce(onInput, 250))
 
 const displayDropdown = () => {
+  console.log('Display Dropdown.')
+
   dropdown.classList.add('is-active');
-  document.addEventListener('click', hideDropdown)
+
+  setTimeout(() => {
+    document.addEventListener('click', (event) => {
+      if (!autocompleteRoot.contains(event.target)) {
+        hideDropdown()
+      }
+    }
+    )
+  }, 100);
 }
 
 const hideDropdown = () => {
+  console.log('Hide dropdown.')
   dropdown.classList.remove('is-active');
   document.removeEventListener('click', hideDropdown)
-  // if (input.value) {
-  //   input.addEventListener('click', displayDropdown)
-  // }
+  if (input.value) {
+    input.addEventListener('click', displayDropdown)
+  }
 }
 
